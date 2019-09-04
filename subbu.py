@@ -9,6 +9,8 @@ data = {}
 fields = []
 tables = []
 values = []
+conditions = []
+projections = []
 
 def main():
     processMetaData()
@@ -56,22 +58,57 @@ def processStatement(tokens):
     for i in l:
         identifierList.append(str(i))
 
-    if len(identifierList) == 4:
+    function = re.sub("[\(\)]",' ',identifierList[1]).split()
+    if (function[0] == '*'):
+        for tableName, fieldList in data.items():
+            tables.append(tableName)
+            fields += fieldList
+    else :
         fields = re.sub("[\,]",' ',identifierList[1]).split()
         tables = re.sub("[\,]",' ',identifierList[3]).split()
 
-        if( check_tables() == 1):
-            print("Error: Table not found")
-            return
-        state = check_fields() 
-        if state == 1:
-            print("Error: Field not found")
-            return 
-        elif state == 2:
-            print("Error: Field common to multiple tables present")
-            return
-        
-        printData()
+        """if len(identifierList) == 5:
+            where = identifierList[4].split()
+            for i in range(1,len(where),2):
+                attribute = re.sub("[\=\>\<0-9]",' ',where[i]).split()
+                feilds += attribute
+                if len(attribute) == 1:
+                    processCondition(where)
+                elif len(attribute) == 2:
+                    processProjections(where)"""
+
+
+    if( check_tables() == 1):
+        print("Error: Table not found")
+        return
+    state = check_fields() 
+    if state == 1:
+        print("Error: Field not found")
+        return 
+    elif state == 2:
+        print("Error: Field common to multiple tables present")
+        return
+
+    for tableName in tables:
+        cartesian_prd(tableName)
+
+    #assumption max and min are for only one column
+    if (function[0] == '*'):
+        pass
+    elif(function[0] == 'max'):
+        values = [max(i) for i in zip(*values)]
+    elif(function[0] == 'min'):
+        values = [max(i) for i in zip(*values)]
+    elif(function[0] == 'sum'):
+        values = [sum(i) for i in zip(*values)]
+    elif(function[0] == 'avg'):
+        l = len(values)
+        values = [sum(i)/l for i in zip(*values)]
+    elif(function[0] == 'distinct'):
+        newValues = list(set(values))
+    else:
+        pass
+    printData()
 
 def check_tables():
     global metaData, data, fields, tables, values 
@@ -152,6 +189,4 @@ def printData():
             print(str(i), end = '\t')
         print("\n")
 
-
-        
 

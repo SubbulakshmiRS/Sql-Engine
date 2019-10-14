@@ -4,4 +4,4 @@ The format is given the Assignment pdf .
 
 ## Compile and Run
 
-python3.5 SQLserver.py "select * from table1 where col1 , col2"
+python3.5 SQLengine.py "select * from table1 where col1 , col2"
